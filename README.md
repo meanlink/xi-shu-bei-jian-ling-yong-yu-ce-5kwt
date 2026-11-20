@@ -3,8 +3,8 @@
 间歇需求预测的真实业务分析小型项目。完整模拟客户、痛点、上下游、算法公式与一天工作剧本见 [BUSINESS.md](BUSINESS.md)。
 
 ## 模块与业务流程
-数据接入（JSON/CSV、字段验证、批次指纹）→ 参数化分析（异步 Python worker）→ 结果复核（指标、图形、明细、解释、批准）→ 定时分发（本地收件箱、CSV/JSON、SHA256）；另有业务总览和审计轨迹。
-三个贯穿全栈的实体：Dataset 数据批次、Job 分析任务、Report 分发计划；辅助 User、Audit、Delivery。
+数据接入（JSON/CSV、字段验证、批次指纹）→ 参数化分析（异步 Python worker）→ 结果复核（指标、图形、明细、解释、批准）→ 检修排程（留料、工位档期、整单占位、未排原因）→ 定时分发（本地收件箱、CSV/JSON、SHA256）；另有业务总览和审计轨迹。
+贯穿全栈的实体：Dataset 数据批次、Job 分析任务、Schedule/WorkOrder 排程与工单、Report 分发计划；辅助 User、Workstation、MaterialDay、Reservation、Audit、Delivery。
 
 ## 快速启动
 ```bash
@@ -28,8 +28,8 @@ Python 3.12 / FastAPI / SQLAlchemy / NumPy / SciPy / scikit-learn；PostgreSQL 1
 
 ## 目录与工程约定
 backend/src/{models,schemas,services,routes,controllers,middlewares,constants,config,utils}；backend/scripts/seed_demo.py；backend/migrations/initial.py。
-frontend/src/{api,stores,types,components/common,hooks,pages,router,utils,constants}。
-Role 枚举：admin/analyst/viewer；JobStatus：queued/running/completed/failed。后端 backend/src/constants/enums.py，前端 frontend/src/constants/enums.js；路由权限在 middlewares/auth.py；页面按相同角色控制操作入口。
+frontend/src/{api,stores,types,components/common,hooks,pages,router,utils,constants}。排程页面为 frontend/src/pages/scheduling.js，接口在 backend/src/routes/scheduling.py 与 backend/src/services/scheduling.py。
+Role 枚举：admin/analyst/viewer；JobStatus：queued/running/completed/failed。排程规则（留料、优先级、确认失效）见 BUSINESS.md「检修排程契约」；求解用 SciPy milp，无新增依赖。后端 backend/src/constants/enums.py，前端 frontend/src/constants/enums.js；路由权限在 middlewares/auth.py；页面按相同角色控制操作入口。
 
 ## 环境变量与 Docker
 COMPOSE_PROJECT_NAME=spare-croston；FRONTEND_PORT=18214；BACKEND_PORT=19214；DB_PORT=17714；DB_PASSWORD、JWT_SECRET 见 .env.example；SEED_DEMO 默认 true。共享命名产物卷供后端下载与 worker 写入，数据库/Redis 各持久卷。
